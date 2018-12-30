@@ -13,3 +13,4 @@ pom.xml.asc
 
 app_list.json
 database.json
+.env

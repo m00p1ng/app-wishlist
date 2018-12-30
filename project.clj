@@ -6,6 +6,8 @@
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/tools.reader "1.3.2"]
                  [cheshire "5.8.1"]
+                 [com.draines/postal "2.0.3"]
+                 [lynxeyes/dotenv "1.0.2"]
                  [clj-http "3.9.1"]]
   :main app-wishlist.core
   :repl-options {:init-ns app-wishlist.core})

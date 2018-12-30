@@ -1,19 +1,17 @@
 (ns app-wishlist.core
   (:require [clj-http.client :as client]
             [cheshire.core :refer :all]
+            [postal.core :refer :all]
+            [dotenv :refer [env app-env]]
             [clojure.java.io :as io]))
-
-; (defn get-price
-;   [app-id]
-;   (def result
-;     (client/get
-;      (str "https://itunes.apple.com/lookup?country=th&id=" app-id)
-;      {:as :json}))
-;   (int (get-in result [:body :results 0 :price])))
 
 (defn get-price
   [app-id]
-  179)
+  (def result
+    (client/get
+     (str "https://itunes.apple.com/lookup?country=th&id=" app-id)
+     {:as :json}))
+  (int (get-in result [:body :results 0 :price])))
 
 (defn retrive-data-from-database
   [filename]
@@ -55,6 +53,21 @@
        (assoc app :price (kw-app-id price-list))))
    (filter-lower-price app-list database price-list)))
 
+(defn send-email
+  [app]
+  (def email (env "EMAIL"))
+  (def pass (env "PASS"))
+
+  (def conn {:host "smtp.gmail.com"
+             :ssl true
+             :user email
+             :pass pass})
+
+  (send-message conn {:from email
+                      :to (env "TO")
+                      :subject (str (:name app) " is sell now!")
+                      :body (str (:name app) " is " (:price app) " baht now!")}))
+
 (defn start
   []
   (def database-filename "database.json")
@@ -69,7 +82,10 @@
   (spit
    database-filename
    (generate-string price-list))
-  (println price-down))
+  (doseq
+   [app price-down]
+    (send-email app)
+    (println app)))
 
 (defn -main
   []
